@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
     private static Optional<Price> chosePriceByPriority(List<Price> prices) {
         if (prices.size() == 1) {
-            return Optional.ofNullable(prices.getFirst());
+            return Optional.ofNullable(prices.get(0));
         }
 
         return prices.stream()
