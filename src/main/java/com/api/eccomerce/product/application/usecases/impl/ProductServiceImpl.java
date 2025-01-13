@@ -24,16 +24,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<Price> getPriceByProductAndDateTime(String productId, LocalDateTime dateTime) {
-        List<Price> prices = productPort.retrieveProductPriceByDateTime(productId, dateTime);
+        List<Price> prices = productPort.retrieveProductPricesByDateTime(productId, dateTime);
         return chosePriceByPriority(prices);
     }
 
     private static Optional<Price> chosePriceByPriority(List<Price> prices) {
         if (prices.size() == 1) {
-            return Optional.ofNullable(prices.get(0));
+            return Optional.ofNullable(prices.getFirst());
         }
 
         return prices.stream()
-                .max(Comparator.comparing(Price::getDateTime).thenComparingInt(Price::getPriority));
+                .max(Comparator.comparing(Price::getPriority));
     }
 }

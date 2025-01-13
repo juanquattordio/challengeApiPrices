@@ -6,5 +6,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProductPort {
-    List<Price> retrieveProductPriceByDateTime(String productId, LocalDateTime dateTime);
+    List<Price> retrieveProductPricesByDateTime(String productId, LocalDateTime dateTime);
 }

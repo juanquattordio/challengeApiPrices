@@ -6,7 +6,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @Getter
 @Builder
 public class Price {
@@ -14,5 +13,25 @@ public class Price {
     private int priority;
     private String currency;
     private Double value;
-    private LocalDateTime dateTime;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+
+    public Price(
+            int priceList,
+            int priority,
+            String currency,
+            Double value,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime) {
+        if (endDateTime.isBefore(startDateTime)) {
+            throw new IllegalArgumentException("endDateTime must not be before startDateTime");
+        }
+
+        this.priceList = priceList;
+        this.priority = priority;
+        this.currency = currency;
+        this.value = value;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+    }
 }
