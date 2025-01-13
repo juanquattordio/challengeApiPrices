@@ -20,7 +20,7 @@ public class PriceEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "brand_id", nullable = false)
+    @Column(name = "brand_id", length = 20, nullable = false)
     private String brandId;
 
     @Column(name = "start_date", nullable = false)
@@ -32,7 +32,7 @@ public class PriceEntity {
     @Column(name = "price_list", nullable = false)
     private Integer priceList;
 
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "product_id", length = 20, nullable = false)
     private String productId;
 
     @Column(name = "priority", nullable = false)
@@ -41,6 +41,6 @@ public class PriceEntity {
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @Column(name = "curr", nullable = false)
+    @Column(name = "currency", nullable = false)
     private String currency;
 }
