@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class ProductJpaRepositoryAdapter implements ProductPort {
@@ -28,6 +27,6 @@ public class ProductJpaRepositoryAdapter implements ProductPort {
     public List<Price> retrieveProductPricesByDateTime(String productId, LocalDateTime dateTime) {
         return productRepository.findPricesByDateTimeAndProduct(productId, dateTime).stream()
                 .map(priceMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -1,6 +1,5 @@
 package com.api.eccomerce.product.domain.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -25,6 +24,9 @@ public class Price {
             LocalDateTime endDateTime) {
         if (endDateTime.isBefore(startDateTime)) {
             throw new IllegalArgumentException("endDateTime must not be before startDateTime");
+        }
+        if (value < 0) {
+            throw new IllegalArgumentException("price value must not be negative");
         }
 
         this.priceList = priceList;

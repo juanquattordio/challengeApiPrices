@@ -43,6 +43,18 @@ class ProductRepositoryTest {
         assertEquals(2, priceList.size());
     }
 
+    @Test
+    @DisplayName(
+            "When no date time for a product match with condition, it returns empty list prices")
+    void findPricesByDateTimeAndProductReturnsNoPrice() {
+
+        List<PriceEntity> priceList =
+                testee.findPricesByDateTimeAndProduct(
+                        "35455", LocalDateTime.of(2019, 6, 14, 16, 0, 0));
+
+        assertEquals(0, priceList.size());
+    }
+
     private void fillOutMockDataBase() {
         PriceEntity price1 =
                 new PriceEntity(

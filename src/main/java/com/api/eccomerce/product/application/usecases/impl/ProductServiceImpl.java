@@ -33,7 +33,6 @@ public class ProductServiceImpl implements ProductService {
             return Optional.ofNullable(prices.get(0));
         }
 
-        return prices.stream()
-                .max(Comparator.comparing(Price::getPriority));
+        return prices.stream().max(Comparator.comparing(Price::getPriority));
     }
 }
