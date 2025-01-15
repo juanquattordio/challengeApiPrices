@@ -5,9 +5,9 @@ import static com.api.eccomerce.product.domain.valueObjetcs.Currency.EUR;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.api.eccomerce.product.application.ports.ProductPort;
 import com.api.eccomerce.product.domain.models.Price;
 import com.api.eccomerce.product.domain.models.Product;
-import com.api.eccomerce.product.domain.ports.ProductPort;
 import com.api.eccomerce.product.domain.valueObjetcs.Brand;
 
 import org.junit.jupiter.api.BeforeEach;

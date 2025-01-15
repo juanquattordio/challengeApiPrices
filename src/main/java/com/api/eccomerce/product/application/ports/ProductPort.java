@@ -1,4 +1,4 @@
-package com.api.eccomerce.product.domain.ports;
+package com.api.eccomerce.product.application.ports;
 
 import com.api.eccomerce.product.domain.models.Price;
 

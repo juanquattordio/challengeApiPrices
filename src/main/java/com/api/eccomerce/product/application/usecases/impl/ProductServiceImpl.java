@@ -1,8 +1,8 @@
 package com.api.eccomerce.product.application.usecases.impl;
 
+import com.api.eccomerce.product.application.ports.ProductPort;
 import com.api.eccomerce.product.application.usecases.ProductService;
 import com.api.eccomerce.product.domain.models.Price;
-import com.api.eccomerce.product.domain.ports.ProductPort;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

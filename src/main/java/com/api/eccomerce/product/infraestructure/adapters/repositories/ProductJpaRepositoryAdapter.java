@@ -1,7 +1,7 @@
 package com.api.eccomerce.product.infraestructure.adapters.repositories;
 
+import com.api.eccomerce.product.application.ports.ProductPort;
 import com.api.eccomerce.product.domain.models.Price;
-import com.api.eccomerce.product.domain.ports.ProductPort;
 import com.api.eccomerce.product.infraestructure.adapters.mappers.PriceMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
