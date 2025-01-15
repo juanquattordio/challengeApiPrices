@@ -1,6 +1,5 @@
 package com.api.eccomerce.product.infraestructure.controllers.responses;
 
-import com.api.eccomerce.product.domain.valueObjetcs.Brand;
 
 import lombok.*;
 

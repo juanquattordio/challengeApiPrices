@@ -1,6 +1,7 @@
 package com.api.eccomerce.product.domain.models;
 
 import com.api.eccomerce.product.domain.valueObjetcs.Brand;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

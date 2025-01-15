@@ -10,7 +10,6 @@ public enum Brand {
     private final String id;
     private final String description;
 
-
     Brand(String id, String description) {
         this.id = id;
         this.description = description;
@@ -24,5 +23,4 @@ public enum Brand {
         }
         throw new IllegalArgumentException("No Brand found for brandId: " + brandId);
     }
-
 }

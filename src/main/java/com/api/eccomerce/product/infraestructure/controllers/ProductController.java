@@ -1,5 +1,7 @@
 package com.api.eccomerce.product.infraestructure.controllers;
 
+import static com.api.eccomerce.product.domain.valueObjetcs.Brand.getBrandByBrandId;
+
 import com.api.eccomerce.product.application.usecases.ProductService;
 import com.api.eccomerce.product.domain.models.Price;
 import com.api.eccomerce.product.domain.valueObjetcs.Brand;
@@ -18,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
-
-import static com.api.eccomerce.product.domain.valueObjetcs.Brand.getBrandByBrandId;
 
 @RestController
 @RequestMapping("/products")
