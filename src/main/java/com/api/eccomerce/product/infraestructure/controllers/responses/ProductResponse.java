@@ -1,5 +1,7 @@
 package com.api.eccomerce.product.infraestructure.controllers.responses;
 
+import com.api.eccomerce.product.domain.valueObjetcs.Brand;
+
 import lombok.*;
 
 import java.util.Collections;
@@ -10,6 +12,6 @@ import java.util.List;
 @Builder
 public class ProductResponse {
     private String productCodeId;
-    private String brandId;
+    private BrandResponse brand;
     @Builder.Default private List<PriceResponse> prices = Collections.emptyList();
 }

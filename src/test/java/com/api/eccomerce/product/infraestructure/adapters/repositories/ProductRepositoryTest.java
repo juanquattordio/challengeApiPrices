@@ -114,7 +114,7 @@ class ProductRepositoryTest {
         entityManager.persist(price4);
     }
 
-    static Stream<Arguments> provideTestCasesWithEmptyReturns() {
+    private static Stream<Arguments> provideTestCasesWithEmptyReturns() {
         return Stream.of(
                 Arguments.of("Product does not match", BRAND_1, "anotherProduct", DATE_TIME_OK),
                 Arguments.of("Brand does not match", "anotherBrand", PRODUCT_ID, DATE_TIME_OK),

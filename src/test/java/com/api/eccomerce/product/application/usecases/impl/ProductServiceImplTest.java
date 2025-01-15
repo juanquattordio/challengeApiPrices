@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import com.api.eccomerce.product.domain.models.Price;
 import com.api.eccomerce.product.domain.models.Product;
 import com.api.eccomerce.product.domain.ports.ProductPort;
+import com.api.eccomerce.product.domain.valueObjetcs.Brand;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +43,6 @@ class ProductServiceImplTest {
                     25.45,
                     LocalDateTime.of(2020, 6, 14, 15, 0, 0),
                     LocalDateTime.of(2020, 6, 14, 18, 30, 0));
-    private static final String BRAND_ID = "brandId";
     private List<Price> listPrices;
     private Product product1;
 
@@ -57,7 +57,7 @@ class ProductServiceImplTest {
                         .codeId(TS1)
                         .description(T_SHIRT)
                         .prices(listPrices)
-                        .brandId(BRAND_ID)
+                        .brand(Brand.ZARA)
                         .build();
     }
 
@@ -69,12 +69,13 @@ class ProductServiceImplTest {
         listPrices.add(PRICE_2);
         LocalDateTime requestDateTime = LocalDateTime.of(2020, 6, 14, 16, 0, 0);
 
-        when(productPort.retrieveProductPricesByBrandAndDateTime(BRAND_ID, TS1, requestDateTime))
+        when(productPort.retrieveProductPricesByBrandAndDateTime(
+                        Brand.ZARA.getId(), TS1, requestDateTime))
                 .thenReturn(listPrices);
 
         Optional<Price> product1Price =
                 testee.getPriceByBrandAndProductAndDateTime(
-                        product1.getCodeId(), BRAND_ID, requestDateTime);
+                        product1.getBrand().getId(), product1.getCodeId(), requestDateTime);
 
         assertEquals(25.45, product1Price.get().getValue());
         assertEquals(1, product1Price.get().getPriority());
@@ -88,12 +89,13 @@ class ProductServiceImplTest {
         listPrices.add(PRICE_1);
         LocalDateTime requestDateTime = LocalDateTime.of(2020, 6, 14, 21, 0, 0);
 
-        when(productPort.retrieveProductPricesByBrandAndDateTime(TS1, BRAND_ID, requestDateTime))
+        when(productPort.retrieveProductPricesByBrandAndDateTime(
+                        Brand.ZARA.getId(), TS1, requestDateTime))
                 .thenReturn(listPrices);
 
         Optional<Price> product1Price =
                 testee.getPriceByBrandAndProductAndDateTime(
-                        product1.getCodeId(), BRAND_ID, requestDateTime);
+                        product1.getBrand().getId(), product1.getCodeId(), requestDateTime);
 
         assertEquals(35.5, product1Price.get().getValue());
         assertEquals(0, product1Price.get().getPriority());
@@ -106,12 +108,13 @@ class ProductServiceImplTest {
     void getPriceByProductAndDateTimeNoReceivesPricesAndReturnsNoPrice() {
         LocalDateTime requestDateTime = LocalDateTime.of(2019, 6, 14, 21, 0, 0);
 
-        when(productPort.retrieveProductPricesByBrandAndDateTime(TS1, BRAND_ID, requestDateTime))
+        when(productPort.retrieveProductPricesByBrandAndDateTime(
+                        Brand.ZARA.getId(), TS1, requestDateTime))
                 .thenReturn(new ArrayList<>());
 
         Optional<Price> product1Price =
                 testee.getPriceByBrandAndProductAndDateTime(
-                        product1.getCodeId(), BRAND_ID, requestDateTime);
+                        product1.getBrand().getId(), product1.getCodeId(), requestDateTime);
 
         assertTrue(product1Price.isEmpty());
     }
