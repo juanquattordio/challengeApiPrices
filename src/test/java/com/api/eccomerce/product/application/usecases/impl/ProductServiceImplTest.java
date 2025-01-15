@@ -1,6 +1,6 @@
 package com.api.eccomerce.product.application.usecases.impl;
 
-import static com.api.eccomerce.product.domain.valueObjetcs.Currency.EUR;
+import static com.api.eccomerce.product.domain.value_objetcs.Currency.EUR;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -8,7 +8,7 @@ import static org.mockito.Mockito.*;
 import com.api.eccomerce.product.application.ports.ProductPort;
 import com.api.eccomerce.product.domain.models.Price;
 import com.api.eccomerce.product.domain.models.Product;
-import com.api.eccomerce.product.domain.valueObjetcs.Brand;
+import com.api.eccomerce.product.domain.value_objetcs.Brand;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

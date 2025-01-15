@@ -1,6 +1,6 @@
 package com.api.eccomerce.product.infraestructure.adapters.repositories;
 
-import static com.api.eccomerce.product.domain.valueObjetcs.Currency.EUR;
+import static com.api.eccomerce.product.domain.value_objetcs.Currency.EUR;
 
 import static org.junit.jupiter.api.Assertions.*;
 

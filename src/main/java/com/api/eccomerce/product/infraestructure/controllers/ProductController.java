@@ -1,10 +1,10 @@
 package com.api.eccomerce.product.infraestructure.controllers;
 
-import static com.api.eccomerce.product.domain.valueObjetcs.Brand.getBrandByBrandId;
+import static com.api.eccomerce.product.domain.value_objetcs.Brand.getBrandByBrandId;
 
 import com.api.eccomerce.product.application.usecases.ProductService;
 import com.api.eccomerce.product.domain.models.Price;
-import com.api.eccomerce.product.domain.valueObjetcs.Brand;
+import com.api.eccomerce.product.domain.value_objetcs.Brand;
 import com.api.eccomerce.product.infraestructure.adapters.mappers.PriceMapper;
 import com.api.eccomerce.product.infraestructure.controllers.responses.BrandResponse;
 import com.api.eccomerce.product.infraestructure.controllers.responses.ProductResponse;

@@ -1,6 +1,6 @@
 package com.api.eccomerce.product.domain.models;
 
-import com.api.eccomerce.product.domain.valueObjetcs.Brand;
+import com.api.eccomerce.product.domain.value_objetcs.Brand;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

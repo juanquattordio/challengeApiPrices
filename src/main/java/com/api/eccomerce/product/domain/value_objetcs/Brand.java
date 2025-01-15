@@ -1,4 +1,4 @@
-package com.api.eccomerce.product.domain.valueObjetcs;
+package com.api.eccomerce.product.domain.value_objetcs;
 
 import lombok.Getter;
 
