@@ -9,6 +9,13 @@ import com.api.eccomerce.product.infraestructure.adapters.mappers.PriceMapper;
 import com.api.eccomerce.product.infraestructure.controllers.responses.BrandResponse;
 import com.api.eccomerce.product.infraestructure.controllers.responses.ProductResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +30,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/products")
+@Tag(
+        name = "Product",
+        description =
+                "The Product API contains all the operations that can be performed on a product.")
 public class ProductController {
 
     private final ProductService productService;
@@ -35,6 +46,25 @@ public class ProductController {
         this.priceMapper = priceMapper;
     }
 
+    @Operation(
+            summary = "Get a price for a brand-product",
+            description =
+                    "If it exists, returns the price of a brand-product for a requested point in time")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "0 (none) or 1 (one) price founded",
+                        content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ProductResponse.class))
+                        }),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid dateTimeUTC supplied",
+                        content = @Content)
+            })
     @GetMapping("/{brandId}/{productId}/prices")
     @ResponseStatus(HttpStatus.OK)
     public ProductResponse getPriceByProductAndDateTime(
@@ -75,7 +105,7 @@ public class ProductController {
                     .description(brand.getDescription())
                     .build();
         } catch (IllegalArgumentException e) {
-            logger.info("Error creating brand response [{}]", e.getMessage());
+            logger.warn("Error creating brand response [{}]", e.getMessage());
         }
         return BrandResponse.builder().brandId(brandId).build();
     }
