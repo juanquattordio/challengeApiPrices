@@ -10,6 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -18,12 +21,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @TestPropertySource(properties = "spring.sql.init.mode=never")
 class ProductRepositoryTest {
 
+    private static final String BRAND_1 = "brand1";
+    private static final String PRODUCT_ID = "35455";
+    private static final LocalDateTime DATE_TIME_OK = LocalDateTime.of(2020, 6, 14, 16, 0, 0);
     @Autowired private ProductRepository testee;
     @Autowired private TestEntityManager entityManager;
 
@@ -37,20 +44,20 @@ class ProductRepositoryTest {
     void findPricesByDateTimeAndProductReturnsSeveralPrices() {
 
         List<PriceEntity> priceList =
-                testee.findPricesByDateTimeAndProduct(
-                        "35455", LocalDateTime.of(2020, 6, 14, 16, 0, 0));
+                testee.findPricesByBrandAndProductAndDateTime(BRAND_1, PRODUCT_ID, DATE_TIME_OK);
 
         assertEquals(2, priceList.size());
     }
 
-    @Test
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("provideTestCasesWithEmptyReturns")
     @DisplayName(
-            "When no date time for a product match with condition, it returns empty list prices")
-    void findPricesByDateTimeAndProductReturnsNoPrice() {
+            "When no date time and product and brand match with condition, it returns empty list prices")
+    void findPricesByDateTimeAndProductReturnsNoPrice(
+            String testName, String brandId, String productId, LocalDateTime dateTime) {
 
         List<PriceEntity> priceList =
-                testee.findPricesByDateTimeAndProduct(
-                        "35455", LocalDateTime.of(2019, 6, 14, 16, 0, 0));
+                testee.findPricesByBrandAndProductAndDateTime(brandId, productId, dateTime);
 
         assertEquals(0, priceList.size());
     }
@@ -59,44 +66,44 @@ class ProductRepositoryTest {
         PriceEntity price1 =
                 new PriceEntity(
                         null,
-                        "brand1",
+                        BRAND_1,
                         LocalDateTime.of(2020, 6, 14, 0, 0, 0),
                         LocalDateTime.of(2020, 12, 31, 23, 59, 59),
                         1,
-                        "35455",
+                        PRODUCT_ID,
                         0,
                         35.5,
                         EUR.toString());
         PriceEntity price2 =
                 new PriceEntity(
                         null,
-                        "brand1",
+                        BRAND_1,
                         LocalDateTime.of(2020, 6, 14, 15, 0, 0),
                         LocalDateTime.of(2020, 6, 14, 18, 30, 0),
                         2,
-                        "35455",
+                        PRODUCT_ID,
                         1,
                         25.45,
                         EUR.toString());
         PriceEntity price3 =
                 new PriceEntity(
                         null,
-                        "brand1",
+                        BRAND_1,
                         LocalDateTime.of(2020, 6, 15, 0, 0, 0),
                         LocalDateTime.of(2020, 6, 15, 11, 0, 0),
                         3,
-                        "35455",
+                        PRODUCT_ID,
                         1,
                         30.50,
                         EUR.toString());
         PriceEntity price4 =
                 new PriceEntity(
                         null,
-                        "brand1",
+                        BRAND_1,
                         LocalDateTime.of(2020, 6, 15, 16, 0, 0),
                         LocalDateTime.of(2020, 12, 31, 23, 59, 59),
                         4,
-                        "35455",
+                        PRODUCT_ID,
                         1,
                         38.95,
                         EUR.toString());
@@ -105,5 +112,16 @@ class ProductRepositoryTest {
         entityManager.persist(price2);
         entityManager.persist(price3);
         entityManager.persist(price4);
+    }
+
+    static Stream<Arguments> provideTestCasesWithEmptyReturns() {
+        return Stream.of(
+                Arguments.of("Product does not match", BRAND_1, "anotherProduct", DATE_TIME_OK),
+                Arguments.of("Brand does not match", "anotherBrand", PRODUCT_ID, DATE_TIME_OK),
+                Arguments.of(
+                        "DateTime does not match",
+                        BRAND_1,
+                        PRODUCT_ID,
+                        LocalDateTime.of(2019, 6, 14, 16, 0, 0)));
     }
 }

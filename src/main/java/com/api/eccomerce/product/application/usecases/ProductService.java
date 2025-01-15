@@ -6,5 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface ProductService {
-    Optional<Price> getPriceByProductAndDateTime(String productId, LocalDateTime dateTime);
+    Optional<Price> getPriceByBrandAndProductAndDateTime(
+            String brandId, String productId, LocalDateTime dateTime);
 }

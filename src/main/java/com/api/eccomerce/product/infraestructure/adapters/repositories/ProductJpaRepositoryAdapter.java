@@ -24,8 +24,11 @@ public class ProductJpaRepositoryAdapter implements ProductPort {
     }
 
     @Override
-    public List<Price> retrieveProductPricesByDateTime(String productId, LocalDateTime dateTime) {
-        return productRepository.findPricesByDateTimeAndProduct(productId, dateTime).stream()
+    public List<Price> retrieveProductPricesByBrandAndDateTime(
+            String brandId, String productId, LocalDateTime dateTime) {
+        return productRepository
+                .findPricesByBrandAndProductAndDateTime(brandId, productId, dateTime)
+                .stream()
                 .map(priceMapper::toDomain)
                 .toList();
     }

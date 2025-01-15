@@ -28,18 +28,21 @@ public class ProductController {
         this.priceMapper = priceMapper;
     }
 
-    @GetMapping("/{productId}/prices")
+    @GetMapping("/{brandId}/{productId}/prices")
     @ResponseStatus(HttpStatus.OK)
     public ProductResponse getPriceByProductAndDateTime(
+            @PathVariable String brandId,
             @PathVariable String productId,
             @RequestParam(value = "dateTimeUTC", required = false)
                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                     LocalDateTime dateTimeUTC) {
         LocalDateTime handledDateTimeUTC = handleDateTimeParam(dateTimeUTC);
         Optional<Price> price =
-                productService.getPriceByProductAndDateTime(productId, handledDateTimeUTC);
+                productService.getPriceByBrandAndProductAndDateTime(
+                        brandId, productId, handledDateTimeUTC);
 
         return ProductResponse.builder()
+                .brandId(brandId)
                 .productCodeId(productId)
                 .prices(price.stream().map(priceMapper::toResponseDTO).toList())
                 .build();

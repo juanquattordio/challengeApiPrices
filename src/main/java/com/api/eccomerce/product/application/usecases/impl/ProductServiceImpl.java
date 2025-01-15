@@ -23,8 +23,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Price> getPriceByProductAndDateTime(String productId, LocalDateTime dateTime) {
-        List<Price> prices = productPort.retrieveProductPricesByDateTime(productId, dateTime);
+    public Optional<Price> getPriceByBrandAndProductAndDateTime(
+            String brandId, String productId, LocalDateTime dateTime) {
+        List<Price> prices =
+                productPort.retrieveProductPricesByBrandAndDateTime(brandId, productId, dateTime);
         return chosePriceByPriority(prices);
     }
 
