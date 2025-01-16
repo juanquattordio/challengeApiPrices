@@ -1,13 +1,12 @@
 package com.api.eccomerce.product.infraestructure.controllers;
 
-import static com.api.eccomerce.product.domain.value_objetcs.Brand.getBrandByBrandId;
-
 import com.api.eccomerce.product.application.usecases.ProductService;
 import com.api.eccomerce.product.domain.models.Price;
-import com.api.eccomerce.product.domain.value_objetcs.Brand;
 import com.api.eccomerce.product.infraestructure.adapters.mappers.PriceMapper;
 import com.api.eccomerce.product.infraestructure.controllers.responses.BrandResponse;
 import com.api.eccomerce.product.infraestructure.controllers.responses.ProductResponse;
+import com.api.eccomerce.product.infraestructure.exceptions.EmptyInputException;
+import com.api.eccomerce.product.infraestructure.exceptions.InvalidDateTimeFormatException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,15 +15,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
@@ -35,10 +30,8 @@ import java.util.Optional;
         description =
                 "The Product API contains all the operations that can be performed on a product.")
 public class ProductController {
-
     private final ProductService productService;
     private final PriceMapper priceMapper;
-    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     @Autowired
     public ProductController(ProductService productService, PriceMapper priceMapper) {
@@ -53,60 +46,66 @@ public class ProductController {
     @ApiResponses(
             value = {
                 @ApiResponse(
-                        responseCode = "200",
-                        description = "0 (none) or 1 (one) price founded",
-                        content = {
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ProductResponse.class))
-                        }),
+                                responseCode = "200",
+                                description = "0 (none) or 1 (one) price founded",
+                                content = {
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema =
+                                                    @Schema(implementation = ProductResponse.class))
+                                }),
+                        @ApiResponse(
+                                responseCode = "400",
+                                description = "brandId or productId blank",
+                                content = @Content),
                 @ApiResponse(
-                        responseCode = "400",
-                        description = "Invalid dateTimeUTC supplied",
-                        content = @Content)
+                                responseCode = "400",
+                                description = "Invalid dateTimeUTC supplied",
+                                content = @Content),
+                        @ApiResponse(
+                                responseCode = "500",
+                                description = "Unexpected error. Used for the rest of the errors",
+                                content = @Content)
             })
     @GetMapping("/{brandId}/{productId}/prices")
-    @ResponseStatus(HttpStatus.OK)
     public ProductResponse getPriceByProductAndDateTime(
             @PathVariable String brandId,
             @PathVariable String productId,
-            @RequestParam(value = "dateTimeUTC", required = false)
-                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                    LocalDateTime dateTimeUTC) {
-        LocalDateTime handledDateTimeUTC = handleDateTimeParam(dateTimeUTC);
+            @RequestParam(value = "dateTimeUTC", required = false) String dateTimeUTC) {
+
+        validateBrandIdAndProductId(brandId, productId);
+
+        LocalDateTime handledDateTimeUTC = processDateTimeParam(dateTimeUTC);
+
         Optional<Price> price =
                 productService.getPriceByBrandAndProductAndDateTime(
                         brandId, productId, handledDateTimeUTC);
 
         return ProductResponse.builder()
-                .brand(createResponse(brandId))
+                .brand(new BrandResponse(brandId))
                 .productCodeId(productId)
                 .prices(price.stream().map(priceMapper::toResponseDTO).toList())
                 .build();
     }
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(
-                        "Invalid date and time format. Please provide the date and time in UTC using the valid format: yyyy-MM-ddThh:mm:ss. "
-                                + ex.getMessage());
-    }
-
-    private LocalDateTime handleDateTimeParam(LocalDateTime dateTimeUTC) {
-        return dateTimeUTC != null ? dateTimeUTC : LocalDateTime.now(ZoneId.of("UTC"));
-    }
-
-    private BrandResponse createResponse(String brandId) {
-        try {
-            Brand brand = getBrandByBrandId(brandId);
-            return BrandResponse.builder()
-                    .brandId(brand.getId())
-                    .description(brand.getDescription())
-                    .build();
-        } catch (IllegalArgumentException e) {
-            logger.warn("Error creating brand response [{}]", e.getMessage());
+    private LocalDateTime processDateTimeParam(String dateTimeUTC) {
+        if (dateTimeUTC == null || dateTimeUTC.isBlank()) {
+            return LocalDateTime.now(ZoneId.of("UTC"));
         }
-        return BrandResponse.builder().brandId(brandId).build();
+        try {
+            return LocalDateTime.parse(dateTimeUTC, DateTimeFormatter.ISO_DATE_TIME);
+        } catch (DateTimeParseException e) {
+            throw new InvalidDateTimeFormatException(
+                    "Invalid dateTime format. Please use UTC format (e.g., 2025-01-16T23:08:59Z)");
+        }
+    }
+
+    private void validateBrandIdAndProductId(String brandId, String productId) {
+        if (brandId == null || brandId.trim().isEmpty()) {
+            throw new EmptyInputException("brandId must not be blank");
+        }
+        if (productId == null || productId.trim().isEmpty()) {
+            throw new EmptyInputException("productId must not be blank");
+        }
     }
 }

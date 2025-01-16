@@ -1,5 +1,7 @@
 package com.api.eccomerce.product.domain.value_objetcs;
 
+import com.api.eccomerce.product.domain.models.exceptions.NoBrandFoundException;
+
 import lombok.Getter;
 
 @Getter
@@ -20,12 +22,12 @@ public enum Brand {
         this.description = description;
     }
 
-    public static Brand getBrandByBrandId(String brandId) {
+    public static Brand getBrandById(String brandId) {
         for (Brand brand : values()) {
             if (brandId.equals(brand.id)) {
                 return brand;
             }
         }
-        throw new IllegalArgumentException("No Brand found for brandId: " + brandId);
+        throw new NoBrandFoundException("No brand found for brandId: " + brandId);
     }
 }
