@@ -10,7 +10,12 @@ import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
+@Setter
 public class BrandResponse {
     private static final Logger logger = LoggerFactory.getLogger(BrandResponse.class);
     private String brandId;
@@ -25,5 +30,19 @@ public class BrandResponse {
             this.brandId = brandId;
             logger.warn("Error creating brand response: {}", e.getMessage());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BrandResponse that = (BrandResponse) o;
+        return Objects.equals(brandId, that.brandId)
+                && Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(brandId, description);
     }
 }

@@ -1,5 +1,7 @@
 package com.api.eccomerce.product.infraestructure.controllers;
 
+import static com.api.eccomerce.product.infraestructure.exceptions.ExceptionMessages.*;
+
 import com.api.eccomerce.product.application.usecases.ProductService;
 import com.api.eccomerce.product.domain.models.Price;
 import com.api.eccomerce.product.infraestructure.adapters.mappers.PriceMapper;
@@ -68,7 +70,7 @@ public class ProductController {
                                 content = @Content)
             })
     @GetMapping("/{brandId}/{productId}/prices")
-    public ProductResponse getPriceByProductAndDateTime(
+    public ProductResponse getPriceByBrandAndProductAndDateTime(
             @PathVariable String brandId,
             @PathVariable String productId,
             @RequestParam(value = "dateTimeUTC", required = false) String dateTimeUTC) {
@@ -93,19 +95,25 @@ public class ProductController {
             return LocalDateTime.now(ZoneId.of("UTC"));
         }
         try {
-            return LocalDateTime.parse(dateTimeUTC, DateTimeFormatter.ISO_DATE_TIME);
+            OffsetDateTime offsetDateTime =
+                    OffsetDateTime.parse(dateTimeUTC, DateTimeFormatter.ISO_DATE_TIME);
+
+            if (!offsetDateTime.getOffset().equals(ZoneOffset.UTC)) {
+                throw new InvalidDateTimeFormatException(INVALID_DATE_TIME_EXCEPTION);
+            }
+
+            return offsetDateTime.toLocalDateTime();
         } catch (DateTimeParseException e) {
-            throw new InvalidDateTimeFormatException(
-                    "Invalid dateTime format. Please use UTC format (e.g., 2025-01-16T23:08:59Z)");
+            throw new InvalidDateTimeFormatException(INVALID_DATE_TIME_EXCEPTION);
         }
     }
 
     private void validateBrandIdAndProductId(String brandId, String productId) {
         if (brandId == null || brandId.trim().isEmpty()) {
-            throw new EmptyInputException("brandId must not be blank");
+            throw new EmptyInputException(BRAND_ID_BLANK_EXCEPTION);
         }
         if (productId == null || productId.trim().isEmpty()) {
-            throw new EmptyInputException("productId must not be blank");
+            throw new EmptyInputException(PRODUCT_ID_BLANK_EXCEPTION);
         }
     }
 }
