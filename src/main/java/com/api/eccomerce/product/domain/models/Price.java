@@ -29,7 +29,7 @@ public class Price {
             Double value,
             LocalDateTime startDateTime,
             LocalDateTime endDateTime) {
-        if (endDateTime.isBefore(startDateTime)) {
+        if (endDateTime == null || endDateTime.isBefore(startDateTime)) {
             throw new PriceException(
                     INCOMPATIBLE_START_END_TIME_MESSAGE_ERROR, HttpStatus.UNPROCESSABLE_ENTITY);
         }
