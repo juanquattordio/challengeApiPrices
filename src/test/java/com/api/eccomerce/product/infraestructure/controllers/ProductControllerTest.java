@@ -171,11 +171,14 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("When an error occurs creating a Price, it should return Unprocessable Entity error")
+    @DisplayName(
+            "When an error occurs creating a Price, it should return Unprocessable Entity error")
     void whenModelPriceErrorShouldReturnPriceError() throws Exception {
         when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
-                .thenThrow(new PriceException(
-                        NEGATIVE_PRICE_VALUE_MESSAGE_ERROR, HttpStatus.UNPROCESSABLE_ENTITY));
+                .thenThrow(
+                        new PriceException(
+                                NEGATIVE_PRICE_VALUE_MESSAGE_ERROR,
+                                HttpStatus.UNPROCESSABLE_ENTITY));
 
         mockMvc.perform(
                         get(String.format(GET_PRICE_PATH, BRAND_ID, PRODUCT_ID))
@@ -185,8 +188,7 @@ class ProductControllerTest {
                         result ->
                                 assertEquals(
                                         result.getResolvedException().getClass().toString(),
-                                        PriceException.class
-                                                .toString()))
+                                        PriceException.class.toString()))
                 .andExpect(jsonPath("$.status").value(HttpStatus.UNPROCESSABLE_ENTITY.value()))
                 .andExpect(jsonPath("$.message").value(NEGATIVE_PRICE_VALUE_MESSAGE_ERROR));
     }

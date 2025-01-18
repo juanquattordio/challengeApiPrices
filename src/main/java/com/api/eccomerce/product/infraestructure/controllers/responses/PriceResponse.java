@@ -3,7 +3,6 @@ package com.api.eccomerce.product.infraestructure.controllers.responses;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
