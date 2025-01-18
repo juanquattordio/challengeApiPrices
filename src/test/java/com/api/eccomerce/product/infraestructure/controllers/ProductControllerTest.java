@@ -1,5 +1,6 @@
 package com.api.eccomerce.product.infraestructure.controllers;
 
+import static com.api.eccomerce.product.domain.models.constants.PriceConstant.NEGATIVE_PRICE_VALUE_MESSAGE_ERROR;
 import static com.api.eccomerce.product.domain.value_objetcs.Currency.EUR;
 import static com.api.eccomerce.product.infraestructure.exceptions.ExceptionMessages.*;
 
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.api.eccomerce.product.application.usecases.ProductService;
 import com.api.eccomerce.product.domain.models.Price;
+import com.api.eccomerce.product.domain.models.exceptions.PriceException;
 import com.api.eccomerce.product.infraestructure.adapters.mappers.PriceMapper;
 import com.api.eccomerce.product.infraestructure.controllers.responses.BrandResponse;
 import com.api.eccomerce.product.infraestructure.controllers.responses.PriceResponse;
@@ -28,8 +30,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -142,8 +146,49 @@ class ProductControllerTest {
                                 assertEquals(
                                         result.getResolvedException().getClass().toString(),
                                         exceptionType))
-                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value(expectedMessage));
+    }
+
+    @Test
+    @DisplayName("When unexpected error occurs, it should return Internal Server error")
+    void whenUnexpectedErrorShouldReturnInternalServerError() throws Exception {
+        when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
+                .thenThrow(HttpServerErrorException.InternalServerError.class);
+
+        mockMvc.perform(
+                        get(String.format(GET_PRICE_PATH, BRAND_ID, PRODUCT_ID))
+                                .param(DATE_TIME_UTC_PARAM, DATE_TIME_REQUEST))
+                .andExpect(status().isInternalServerError())
+                .andExpect(
+                        result ->
+                                assertEquals(
+                                        result.getResolvedException().getClass().toString(),
+                                        HttpServerErrorException.InternalServerError.class
+                                                .toString()))
+                .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.value()))
+                .andExpect(jsonPath("$.message").value("Unexpected error"));
+    }
+
+    @Test
+    @DisplayName("When an error occurs creating a Price, it should return Unprocessable Entity error")
+    void whenModelPriceErrorShouldReturnPriceError() throws Exception {
+        when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
+                .thenThrow(new PriceException(
+                        NEGATIVE_PRICE_VALUE_MESSAGE_ERROR, HttpStatus.UNPROCESSABLE_ENTITY));
+
+        mockMvc.perform(
+                        get(String.format(GET_PRICE_PATH, BRAND_ID, PRODUCT_ID))
+                                .param(DATE_TIME_UTC_PARAM, DATE_TIME_REQUEST))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(
+                        result ->
+                                assertEquals(
+                                        result.getResolvedException().getClass().toString(),
+                                        PriceException.class
+                                                .toString()))
+                .andExpect(jsonPath("$.status").value(HttpStatus.UNPROCESSABLE_ENTITY.value()))
+                .andExpect(jsonPath("$.message").value(NEGATIVE_PRICE_VALUE_MESSAGE_ERROR));
     }
 
     private PriceResponse toPriceResponse(Price priceDomain) {
