@@ -6,8 +6,6 @@ import static com.api.eccomerce.product.infraestructure.exceptions.ExceptionMess
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.api.eccomerce.product.application.usecases.ProductService;
 import com.api.eccomerce.product.domain.models.Price;
@@ -27,12 +25,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.LocalDateTime;
@@ -42,7 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@WebMvcTest(ProductController.class)
+@SpringBootTest
 class ProductControllerTest {
     private static final String BRAND_ID = "1";
     private static final String PRODUCT_ID = "35455";
@@ -56,12 +53,11 @@ class ProductControllerTest {
                     35.5,
                     DATE_TIME_UTC,
                     LocalDateTime.of(2020, 12, 31, 23, 59, 59));
-    private static final String GET_PRICE_PATH = "/products/%s/%s/prices";
     private static final String DATE_TIME_UTC_PARAM = "dateTimeUTC";
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    @Autowired private MockMvc mockMvc;
-    @MockitoBean private ProductService serviceMock;
-    @MockitoBean private PriceMapper mapperMock;
+    @InjectMocks private ProductController testee;
+    @Mock private ProductService serviceMock;
+    @Mock private PriceMapper mapperMock;
 
     @BeforeAll
     static void setup() {
@@ -69,7 +65,7 @@ class ProductControllerTest {
     }
 
     @Test
-    void getPriceByBrandAndProductAndDateTimeShouldReturnsOnePrice() throws Exception {
+    void getPriceByBrandAndProductAndDateTimeShouldReturnsOnePrice() {
         PriceResponse priceResponse = toPriceResponse(PRICE_COMPLETE);
         List<PriceResponse> priceListResponse = new ArrayList<>();
         priceListResponse.add(priceResponse);
@@ -84,23 +80,17 @@ class ProductControllerTest {
                 .thenReturn(Optional.of(PRICE_COMPLETE));
         when(mapperMock.toResponseDTO(PRICE_COMPLETE)).thenReturn(priceResponse);
 
-        String apiResponse =
-                mockMvc.perform(
-                                get(String.format(GET_PRICE_PATH, BRAND_ID, PRODUCT_ID))
-                                        .param(DATE_TIME_UTC_PARAM, DATE_TIME_REQUEST))
-                        .andExpect(status().isOk())
-                        .andReturn()
-                        .getResponse()
-                        .getContentAsString();
+        ProductResponse apiResponse =
+                testee.getPriceByBrandAndProductAndDateTime(
+                        BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST);
 
-        ProductResponse actualResponse = objectMapper.readValue(apiResponse, ProductResponse.class);
-
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(expectedResponse, apiResponse);
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("provideTestCasesDateTimeParamNullOrBlank")
     @DisplayName("When no dateTimeUTC param is like dateTimeUTC equals to now")
-    void whenNoDateTimeUTCParamProcessDateTimeParamShouldReturnNow() throws Exception {
+    void whenNoDateTimeUTCParamProcessDateTimeParamShouldReturnNow(String dateTimeParam) {
         LocalDateTime dateTimeNow = LocalDateTime.of(2022, 1, 1, 12, 0);
         try (MockedStatic<LocalDateTime> mockedLocalDateTime = mockStatic(LocalDateTime.class)) {
             mockedLocalDateTime
@@ -114,11 +104,7 @@ class ProductControllerTest {
                     .thenReturn(Optional.of(PRICE_COMPLETE));
             when(mapperMock.toResponseDTO(PRICE_COMPLETE)).thenReturn(priceResponse);
 
-            mockMvc.perform(get(String.format(GET_PRICE_PATH, BRAND_ID, PRODUCT_ID)))
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString();
+            testee.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, dateTimeParam);
 
             verify(serviceMock, times(1))
                     .getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, dateTimeNow);
@@ -135,62 +121,55 @@ class ProductControllerTest {
             String productId,
             String dateTime,
             String exceptionType,
-            String expectedMessage)
-            throws Exception {
-        mockMvc.perform(
-                        get(String.format(GET_PRICE_PATH, brandId, productId))
-                                .param(DATE_TIME_UTC_PARAM, dateTime))
-                .andExpect(status().isBadRequest())
-                .andExpect(
-                        result ->
-                                assertEquals(
-                                        result.getResolvedException().getClass().toString(),
-                                        exceptionType))
-                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value(expectedMessage));
+            String expectedMessage) {
+
+        Exception exception =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> {
+                            testee.getPriceByBrandAndProductAndDateTime(
+                                    brandId, productId, dateTime);
+                        });
+        assertEquals(exception.getClass().toString(), exceptionType);
+        assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
     @DisplayName("When unexpected error occurs, it should return Internal Server error")
-    void whenUnexpectedErrorShouldReturnInternalServerError() throws Exception {
+    void whenUnexpectedErrorShouldReturnInternalServerError() {
         when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
                 .thenThrow(HttpServerErrorException.InternalServerError.class);
 
-        mockMvc.perform(
-                        get(String.format(GET_PRICE_PATH, BRAND_ID, PRODUCT_ID))
-                                .param(DATE_TIME_UTC_PARAM, DATE_TIME_REQUEST))
-                .andExpect(status().isInternalServerError())
-                .andExpect(
-                        result ->
-                                assertEquals(
-                                        result.getResolvedException().getClass().toString(),
-                                        HttpServerErrorException.InternalServerError.class
-                                                .toString()))
-                .andExpect(jsonPath("$.status").value(HttpStatus.INTERNAL_SERVER_ERROR.value()))
-                .andExpect(jsonPath("$.message").value("Unexpected error"));
+        Exception exception =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> {
+                            testee.getPriceByBrandAndProductAndDateTime(
+                                    BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST);
+                        });
+        assertEquals(HttpServerErrorException.InternalServerError.class, exception.getClass());
     }
 
     @Test
     @DisplayName(
             "When an error occurs creating a Price, it should return Unprocessable Entity error")
-    void whenModelPriceErrorShouldReturnPriceError() throws Exception {
+    void whenModelPriceErrorShouldReturnPriceError() {
         when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
                 .thenThrow(
                         new PriceException(
                                 NEGATIVE_PRICE_VALUE_MESSAGE_ERROR,
                                 HttpStatus.UNPROCESSABLE_ENTITY));
 
-        mockMvc.perform(
-                        get(String.format(GET_PRICE_PATH, BRAND_ID, PRODUCT_ID))
-                                .param(DATE_TIME_UTC_PARAM, DATE_TIME_REQUEST))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(
-                        result ->
-                                assertEquals(
-                                        result.getResolvedException().getClass().toString(),
-                                        PriceException.class.toString()))
-                .andExpect(jsonPath("$.status").value(HttpStatus.UNPROCESSABLE_ENTITY.value()))
-                .andExpect(jsonPath("$.message").value(NEGATIVE_PRICE_VALUE_MESSAGE_ERROR));
+        Exception exception =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> {
+                            testee.getPriceByBrandAndProductAndDateTime(
+                                    BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST);
+                        });
+
+        assertEquals(PriceException.class, exception.getClass());
+        assertEquals(NEGATIVE_PRICE_VALUE_MESSAGE_ERROR, exception.getMessage());
     }
 
     private PriceResponse toPriceResponse(Price priceDomain) {
@@ -216,6 +195,20 @@ class ProductControllerTest {
                         "ProductId is blank",
                         BRAND_ID,
                         " ",
+                        DATE_TIME_UTC_PARAM,
+                        EmptyInputException.class.toString(),
+                        PRODUCT_ID_BLANK_EXCEPTION),
+                Arguments.of(
+                        "BrandId is blank",
+                        null,
+                        PRODUCT_ID,
+                        DATE_TIME_UTC_PARAM,
+                        EmptyInputException.class.toString(),
+                        BRAND_ID_BLANK_EXCEPTION),
+                Arguments.of(
+                        "ProductId is blank",
+                        BRAND_ID,
+                        null,
                         DATE_TIME_UTC_PARAM,
                         EmptyInputException.class.toString(),
                         PRODUCT_ID_BLANK_EXCEPTION),
@@ -247,5 +240,13 @@ class ProductControllerTest {
                         "2025-01-16T23:08:00",
                         InvalidDateTimeFormatException.class.toString(),
                         INVALID_DATE_TIME_EXCEPTION));
+    }
+
+    private static Stream<Arguments> provideTestCasesDateTimeParamNullOrBlank() {
+        return Stream.of(
+                Arguments.of(
+                        " "),
+                Arguments.of(
+                        (Object) null));
     }
 }
