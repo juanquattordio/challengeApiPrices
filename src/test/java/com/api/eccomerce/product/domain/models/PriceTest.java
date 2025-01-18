@@ -22,7 +22,7 @@ class PriceTest {
     void shouldThrowExceptionWhenPriceIsNegative() {
         assertThrowsExactly(
                 PriceException.class,
-                () -> Price.builder().value(-10D).build(),
+                () -> Price.builder().startDateTime(startDate).endDateTime(endDate).value(-10D).build(),
                 NEGATIVE_PRICE_VALUE_MESSAGE_ERROR);
     }
 
@@ -45,6 +45,17 @@ class PriceTest {
 
         assertNotNull(price);
         assertEquals(10D, price.getValue());
+        assertEquals(startDate, price.getStartDateTime());
+        assertEquals(endDate, price.getEndDateTime());
+    }
+
+    @Test
+    void shouldCreatePriceWhenZeroValue() {
+        Price price =
+                Price.builder().value((double) 0).startDateTime(startDate).endDateTime(endDate).build();
+
+        assertNotNull(price);
+        assertEquals(0D, price.getValue());
         assertEquals(startDate, price.getStartDateTime());
         assertEquals(endDate, price.getEndDateTime());
     }
