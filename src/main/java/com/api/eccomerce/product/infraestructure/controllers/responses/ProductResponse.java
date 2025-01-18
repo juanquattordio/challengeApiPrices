@@ -11,23 +11,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
+@EqualsAndHashCode
 public class ProductResponse {
     private String productCodeId;
     private BrandResponse brand;
     @Builder.Default private List<PriceResponse> prices = Collections.emptyList();
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ProductResponse that = (ProductResponse) o;
-        return Objects.equals(productCodeId, that.productCodeId)
-                && Objects.equals(brand, that.brand)
-                && Objects.equals(prices, that.prices);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(productCodeId, brand, prices);
-    }
 }
