@@ -16,10 +16,7 @@ import com.api.eccomerce.product.infraestructure.controllers.responses.PriceResp
 import com.api.eccomerce.product.infraestructure.controllers.responses.ProductResponse;
 import com.api.eccomerce.product.infraestructure.exceptions.EmptyInputException;
 import com.api.eccomerce.product.infraestructure.exceptions.InvalidDateTimeFormatException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,15 +51,9 @@ class ProductControllerTest {
                     DATE_TIME_UTC,
                     LocalDateTime.of(2020, 12, 31, 23, 59, 59));
     private static final String DATE_TIME_UTC_PARAM = "dateTimeUTC";
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     @InjectMocks private ProductController testee;
     @Mock private ProductService serviceMock;
     @Mock private PriceMapper mapperMock;
-
-    @BeforeAll
-    static void setup() {
-        objectMapper.registerModule(new JavaTimeModule());
-    }
 
     @Test
     void getPriceByBrandAndProductAndDateTimeShouldReturnsOnePrice() {
@@ -126,10 +117,8 @@ class ProductControllerTest {
         Exception exception =
                 assertThrows(
                         RuntimeException.class,
-                        () -> {
-                            testee.getPriceByBrandAndProductAndDateTime(
-                                    brandId, productId, dateTime);
-                        });
+                        () -> testee.getPriceByBrandAndProductAndDateTime(
+                                brandId, productId, dateTime));
         assertEquals(exception.getClass().toString(), exceptionType);
         assertEquals(exception.getMessage(), expectedMessage);
     }
@@ -143,10 +132,8 @@ class ProductControllerTest {
         Exception exception =
                 assertThrows(
                         RuntimeException.class,
-                        () -> {
-                            testee.getPriceByBrandAndProductAndDateTime(
-                                    BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST);
-                        });
+                        () -> testee.getPriceByBrandAndProductAndDateTime(
+                                BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST));
         assertEquals(HttpServerErrorException.InternalServerError.class, exception.getClass());
     }
 
@@ -163,10 +150,8 @@ class ProductControllerTest {
         Exception exception =
                 assertThrows(
                         RuntimeException.class,
-                        () -> {
-                            testee.getPriceByBrandAndProductAndDateTime(
-                                    BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST);
-                        });
+                        () -> testee.getPriceByBrandAndProductAndDateTime(
+                                BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST));
 
         assertEquals(PriceException.class, exception.getClass());
         assertEquals(NEGATIVE_PRICE_VALUE_MESSAGE_ERROR, exception.getMessage());
@@ -243,10 +228,6 @@ class ProductControllerTest {
     }
 
     private static Stream<Arguments> provideTestCasesDateTimeParamNullOrBlank() {
-        return Stream.of(
-                Arguments.of(
-                        " "),
-                Arguments.of(
-                        (Object) null));
+        return Stream.of(Arguments.of(" "), Arguments.of((Object) null));
     }
 }
