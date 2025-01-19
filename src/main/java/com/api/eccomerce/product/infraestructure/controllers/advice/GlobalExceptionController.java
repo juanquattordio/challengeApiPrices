@@ -41,7 +41,7 @@ public class GlobalExceptionController {
         ErrorResponse errorResponse =
                 new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
-                        ex.getMessage().isBlank() ? "Input must have a value" : ex.getMessage(),
+                        ex.getMessage() == null ? "Input must have a value" : ex.getMessage(),
                         LocalDateTime.now());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
