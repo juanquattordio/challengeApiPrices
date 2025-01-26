@@ -8,13 +8,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<PriceEntity, String> {
     @Query(
-            "SELECT p FROM PriceEntity p WHERE :dateTime BETWEEN p.startDate AND p.endDate AND p.productId = :productId AND p.brandId = :brandId")
-    List<PriceEntity> findPricesByBrandAndProductAndDateTime(
+            "SELECT p FROM PriceEntity p WHERE :dateTime BETWEEN p.startDate AND p.endDate AND p.productId = :productId AND p.brandId = :brandId ORDER BY p.priority DESC LIMIT 1")
+    Optional<PriceEntity> findHighestPriorityPriceByBrandAndProductAndDateTime(
             @Param("brandId") String brandId,
             @Param("productId") String productId,
             @Param("dateTime") LocalDateTime dateTime);

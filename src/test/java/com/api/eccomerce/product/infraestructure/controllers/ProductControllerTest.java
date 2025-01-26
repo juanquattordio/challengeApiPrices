@@ -19,13 +19,14 @@ import com.api.eccomerce.product.infraestructure.exceptions.InvalidDateTimeForma
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -36,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
     private static final String BRAND_ID = "1";
     private static final String PRODUCT_ID = "35455";
@@ -45,7 +46,6 @@ class ProductControllerTest {
     private static final Price PRICE_COMPLETE =
             new Price(
                     1,
-                    0,
                     EUR.toString(),
                     35.5,
                     DATE_TIME_UTC,
@@ -67,7 +67,8 @@ class ProductControllerTest {
                         .prices(priceListResponse)
                         .build();
 
-        when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
+        when(serviceMock.getHighestPriorityPriceByBrandAndProductAndDateTime(
+                        BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
                 .thenReturn(Optional.of(PRICE_COMPLETE));
         when(mapperMock.toResponseDTO(PRICE_COMPLETE)).thenReturn(priceResponse);
 
@@ -90,7 +91,7 @@ class ProductControllerTest {
 
             PriceResponse priceResponse = toPriceResponse(PRICE_COMPLETE);
 
-            when(serviceMock.getPriceByBrandAndProductAndDateTime(
+            when(serviceMock.getHighestPriorityPriceByBrandAndProductAndDateTime(
                             BRAND_ID, PRODUCT_ID, dateTimeNow))
                     .thenReturn(Optional.of(PRICE_COMPLETE));
             when(mapperMock.toResponseDTO(PRICE_COMPLETE)).thenReturn(priceResponse);
@@ -98,7 +99,8 @@ class ProductControllerTest {
             testee.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, dateTimeParam);
 
             verify(serviceMock, times(1))
-                    .getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, dateTimeNow);
+                    .getHighestPriorityPriceByBrandAndProductAndDateTime(
+                            BRAND_ID, PRODUCT_ID, dateTimeNow);
         }
     }
 
@@ -117,8 +119,9 @@ class ProductControllerTest {
         Exception exception =
                 assertThrows(
                         RuntimeException.class,
-                        () -> testee.getPriceByBrandAndProductAndDateTime(
-                                brandId, productId, dateTime));
+                        () ->
+                                testee.getPriceByBrandAndProductAndDateTime(
+                                        brandId, productId, dateTime));
         assertEquals(exception.getClass().toString(), exceptionType);
         assertEquals(exception.getMessage(), expectedMessage);
     }
@@ -126,14 +129,16 @@ class ProductControllerTest {
     @Test
     @DisplayName("When unexpected error occurs, it should return Internal Server error")
     void whenUnexpectedErrorShouldReturnInternalServerError() {
-        when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
+        when(serviceMock.getHighestPriorityPriceByBrandAndProductAndDateTime(
+                        BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
                 .thenThrow(HttpServerErrorException.InternalServerError.class);
 
         Exception exception =
                 assertThrows(
                         RuntimeException.class,
-                        () -> testee.getPriceByBrandAndProductAndDateTime(
-                                BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST));
+                        () ->
+                                testee.getPriceByBrandAndProductAndDateTime(
+                                        BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST));
         assertEquals(HttpServerErrorException.InternalServerError.class, exception.getClass());
     }
 
@@ -141,7 +146,8 @@ class ProductControllerTest {
     @DisplayName(
             "When an error occurs creating a Price, it should return Unprocessable Entity error")
     void whenModelPriceErrorShouldReturnPriceError() {
-        when(serviceMock.getPriceByBrandAndProductAndDateTime(BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
+        when(serviceMock.getHighestPriorityPriceByBrandAndProductAndDateTime(
+                        BRAND_ID, PRODUCT_ID, DATE_TIME_UTC))
                 .thenThrow(
                         new PriceException(
                                 NEGATIVE_PRICE_VALUE_MESSAGE_ERROR,
@@ -150,8 +156,9 @@ class ProductControllerTest {
         Exception exception =
                 assertThrows(
                         RuntimeException.class,
-                        () -> testee.getPriceByBrandAndProductAndDateTime(
-                                BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST));
+                        () ->
+                                testee.getPriceByBrandAndProductAndDateTime(
+                                        BRAND_ID, PRODUCT_ID, DATE_TIME_REQUEST));
 
         assertEquals(PriceException.class, exception.getClass());
         assertEquals(NEGATIVE_PRICE_VALUE_MESSAGE_ERROR, exception.getMessage());
@@ -160,7 +167,6 @@ class ProductControllerTest {
     private PriceResponse toPriceResponse(Price priceDomain) {
         return new PriceResponse(
                 priceDomain.getPriceList(),
-                priceDomain.getPriority(),
                 priceDomain.getCurrency(),
                 priceDomain.getValue(),
                 priceDomain.getStartDateTime(),

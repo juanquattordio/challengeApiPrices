@@ -9,7 +9,6 @@ import com.api.eccomerce.product.infraestructure.adapters.repositories.entities.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -17,13 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-@ExtendWith(SpringExtension.class)
 @DataJpaTest
 @TestPropertySource(properties = "spring.sql.init.mode=never")
 class ProductRepositoryTest {
@@ -41,25 +38,28 @@ class ProductRepositoryTest {
 
     @Test
     @DisplayName("When many date times for a product match with condition, it returns many prices")
-    void findPricesByDateTimeAndProductReturnsSeveralPrices() {
+    void findHighestPriorityPriceByDateTimeAndProductReturnsSeveralPrices() {
 
-        List<PriceEntity> priceList =
-                testee.findPricesByBrandAndProductAndDateTime(BRAND_1, PRODUCT_ID, DATE_TIME_OK);
+        Optional<PriceEntity> price =
+                testee.findHighestPriorityPriceByBrandAndProductAndDateTime(
+                        BRAND_1, PRODUCT_ID, DATE_TIME_OK);
 
-        assertEquals(2, priceList.size());
+        assertEquals(1, price.get().getPriority());
+        assertEquals(25.45, price.get().getPrice());
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideTestCasesWithEmptyReturns")
     @DisplayName(
             "When no date time and product and brand match with condition, it returns empty list prices")
-    void findPricesByDateTimeAndProductReturnsNoPrice(
+    void findHighestPriorityPriceByDateTimeAndProductReturnsNoPrice(
             String testName, String brandId, String productId, LocalDateTime dateTime) {
 
-        List<PriceEntity> priceList =
-                testee.findPricesByBrandAndProductAndDateTime(brandId, productId, dateTime);
+        Optional<PriceEntity> price =
+                testee.findHighestPriorityPriceByBrandAndProductAndDateTime(
+                        brandId, productId, dateTime);
 
-        assertEquals(0, priceList.size());
+        assertEquals(Optional.empty(), price);
     }
 
     private void fillOutMockDataBase() {

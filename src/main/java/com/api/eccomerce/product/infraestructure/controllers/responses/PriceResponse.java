@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 public class PriceResponse {
     private int priceList;
-    private int priority;
     private String currency;
     private Double value;
     private LocalDateTime startDateTime;

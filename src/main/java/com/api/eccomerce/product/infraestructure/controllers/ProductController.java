@@ -80,7 +80,7 @@ public class ProductController {
         LocalDateTime handledDateTimeUTC = processDateTimeParam(dateTimeUTC);
 
         Optional<Price> price =
-                productService.getPriceByBrandAndProductAndDateTime(
+                productService.getHighestPriorityPriceByBrandAndProductAndDateTime(
                         brandId, productId, handledDateTimeUTC);
 
         return ProductResponse.builder()

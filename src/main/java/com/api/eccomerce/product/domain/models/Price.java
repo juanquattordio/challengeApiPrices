@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Builder
 public class Price {
     private int priceList;
-    private int priority;
     private String currency;
     private Double value;
     private LocalDateTime startDateTime;
@@ -24,7 +23,6 @@ public class Price {
 
     public Price(
             int priceList,
-            int priority,
             String currency,
             Double value,
             LocalDateTime startDateTime,
@@ -39,7 +37,6 @@ public class Price {
         }
 
         this.priceList = priceList;
-        this.priority = priority;
         this.currency = currency;
         this.value = value;
         this.startDateTime = startDateTime;

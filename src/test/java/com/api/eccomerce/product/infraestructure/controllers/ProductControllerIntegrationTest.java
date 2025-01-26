@@ -87,7 +87,6 @@ class ProductControllerIntegrationTest {
                         "2020-06-14T10:00:00Z",
                         new Price(
                                 1,
-                                0,
                                 EUR.toString(),
                                 35.5,
                                 LocalDateTime.of(2020, 6, 14, 0, 0, 0),
@@ -98,7 +97,6 @@ class ProductControllerIntegrationTest {
                         "2020-06-14T16:00:00Z",
                         new Price(
                                 2,
-                                1,
                                 EUR.toString(),
                                 25.45,
                                 LocalDateTime.of(2020, 6, 14, 15, 0, 0),
@@ -109,7 +107,6 @@ class ProductControllerIntegrationTest {
                         "2020-06-14T21:00:00Z",
                         new Price(
                                 1,
-                                0,
                                 EUR.toString(),
                                 35.5,
                                 LocalDateTime.of(2020, 6, 14, 0, 0, 0),
@@ -120,7 +117,6 @@ class ProductControllerIntegrationTest {
                         "2020-06-15T10:00:00Z",
                         new Price(
                                 3,
-                                1,
                                 EUR.toString(),
                                 30.50,
                                 LocalDateTime.of(2020, 6, 15, 0, 0, 0),
@@ -131,7 +127,6 @@ class ProductControllerIntegrationTest {
                         "2020-06-16T21:00:00Z",
                         new Price(
                                 4,
-                                1,
                                 EUR.toString(),
                                 38.95,
                                 LocalDateTime.of(2020, 6, 15, 16, 0, 0),
@@ -141,7 +136,6 @@ class ProductControllerIntegrationTest {
                         "12345",
                         null,
                         new Price(
-                                0,
                                 0,
                                 EUR.toString(),
                                 8.95,

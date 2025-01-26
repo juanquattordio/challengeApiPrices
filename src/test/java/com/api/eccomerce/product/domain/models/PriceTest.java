@@ -8,11 +8,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.api.eccomerce.product.domain.models.exceptions.PriceException;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 
-@SpringBootTest
 class PriceTest {
 
     private final LocalDateTime startDate = LocalDateTime.of(2020, 6, 14, 0, 0, 0);
@@ -22,7 +20,12 @@ class PriceTest {
     void shouldThrowExceptionWhenPriceIsNegative() {
         assertThrowsExactly(
                 PriceException.class,
-                () -> Price.builder().startDateTime(startDate).endDateTime(endDate).value(-10D).build(),
+                () ->
+                        Price.builder()
+                                .startDateTime(startDate)
+                                .endDateTime(endDate)
+                                .value(-10D)
+                                .build(),
                 NEGATIVE_PRICE_VALUE_MESSAGE_ERROR);
     }
 
@@ -52,7 +55,11 @@ class PriceTest {
     @Test
     void shouldCreatePriceWhenZeroValue() {
         Price price =
-                Price.builder().value((double) 0).startDateTime(startDate).endDateTime(endDate).build();
+                Price.builder()
+                        .value((double) 0)
+                        .startDateTime(startDate)
+                        .endDateTime(endDate)
+                        .build();
 
         assertNotNull(price);
         assertEquals(0D, price.getValue());

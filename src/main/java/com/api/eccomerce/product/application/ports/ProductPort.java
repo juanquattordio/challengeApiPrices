@@ -3,9 +3,9 @@ package com.api.eccomerce.product.application.ports;
 import com.api.eccomerce.product.domain.models.Price;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 public interface ProductPort {
-    List<Price> retrieveProductPricesByBrandAndDateTime(
+    Optional<Price> retrieveHighestPriorityProductPriceByBrandAndDateTime(
             String brandId, String productId, LocalDateTime dateTime);
 }

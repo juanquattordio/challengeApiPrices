@@ -13,10 +13,8 @@ import com.api.eccomerce.product.infraestructure.exceptions.EmptyInputException;
 import com.api.eccomerce.product.infraestructure.exceptions.InvalidDateTimeFormatException;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
-@SpringBootTest
 class GlobalExceptionControllerTest {
     private final GlobalExceptionController handler = new GlobalExceptionController();
 

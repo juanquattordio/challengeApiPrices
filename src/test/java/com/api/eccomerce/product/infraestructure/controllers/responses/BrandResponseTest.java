@@ -9,11 +9,9 @@ import ch.qos.logback.core.read.ListAppender;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-@SpringBootTest
 class BrandResponseTest {
 
     private List<ILoggingEvent> logsList;

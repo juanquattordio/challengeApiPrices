@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,18 +21,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<Price> getPriceByBrandAndProductAndDateTime(
+    public Optional<Price> getHighestPriorityPriceByBrandAndProductAndDateTime(
             String brandId, String productId, LocalDateTime dateTime) {
-        List<Price> prices =
-                productPort.retrieveProductPricesByBrandAndDateTime(brandId, productId, dateTime);
-        return choosePriceByPriority(prices);
-    }
-
-    private static Optional<Price> choosePriceByPriority(List<Price> prices) {
-        if (prices.size() == 1) {
-            return Optional.ofNullable(prices.get(0));
-        }
-
-        return prices.stream().max(Comparator.comparing(Price::getPriority));
+        return productPort.retrieveHighestPriorityProductPriceByBrandAndDateTime(brandId, productId, dateTime);
     }
 }
