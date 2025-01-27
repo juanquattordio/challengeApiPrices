@@ -70,3 +70,4 @@ _Note: all classes whose file name ends with **/*MapperImpl.class, have been exc
 - Apply CQRS pattern ([link](https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs)). Segregates read and write operations for a data store into separate data models. This allows each model to be optimized independently and can improve performance, scalability, and security of an application.
 - Create DB partitions. If the table is very large, partitioning the table can help. For example, you can partition it by date range or by brandId.
 - Cache implementation. Think that you could implement a cache to respond without overloading the DB, but it would depend a little on the dynamics of loading or updating prices in the DB.
+- Create a performance test with JMH.
